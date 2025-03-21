@@ -95,22 +95,7 @@ if [ -d "$WORDPRESS_CONTENT_ABS_DIR" ]; then
         echo "Custom directory already contains files, using existing content."
     fi
     
-    # Configure WordPress to use custom directory
-    if [ -f /var/www/html/wp-config.php ]; then
-        # Check if configuration is already present
-        if ! grep -q "WP_CONTENT_DIR" /var/www/html/wp-config.php; then
-            # Add configuration before the ABSPATH line
-            SITE_URL=$(grep "WP_HOME" /var/www/html/wp-config.php | grep -o "'[^']*'" | tail -1 | tr -d "'")
-            if [ -z "$SITE_URL" ]; then
-                SITE_URL=""
-            fi
-            CONTENT_URL="${SITE_URL}${WORDPRESS_CONTENT_REL_DIR}"
-            
-            sed -i "/ABSPATH/i \/** Custom content directory *\/\ndefine('WP_CONTENT_DIR', '$WORDPRESS_CONTENT_ABS_DIR');\ndefine('WP_CONTENT_URL', '$CONTENT_URL');" /var/www/html/wp-config.php
-            
-            echo "WordPress configured to use custom content directory."
-        fi
-    fi
+    # No need to modify wp-config.php here as these settings are now included when generating the file
     
     # Create symbolic link for compatibility
     if [ -d "/var/www/html/wp-content" ] && [ ! -L "/var/www/html/wp-content" ]; then

@@ -19,6 +19,12 @@ $wp_language = getenv('WORDPRESS_LANGUAGE') ?: 'es_MX';
 $wp_auto_update = filter_var(getenv('WORDPRESS_AUTO_UPDATE'), FILTER_VALIDATE_BOOLEAN) ?: false;
 $wp_site_url = getenv('WORDPRESS_SITE_URL') ?: '';
 
+// Get wp-content directory settings
+$wp_content_rel_dir = getenv('WORDPRESS_CONTENT_DIR') ?: '/wp-content';
+$wp_content_abs_dir = (substr($wp_content_rel_dir, 0, 1) !== '/') 
+    ? "/var/www/html$wp_content_rel_dir" 
+    : $wp_content_rel_dir;
+
 // Prepare values for config
 $debug_value = $wp_debug ? 'true' : 'false';
 $auto_update_value = $wp_auto_update ? 'true' : "'minor'";
@@ -88,6 +94,15 @@ define('WP_HOME', '{$wp_site_url}');
 EOT;
 }
 
+// Custom content directory configuration
+$content_url = $site_url_check ? "$wp_site_url$wp_content_rel_dir" : $wp_content_rel_dir;
+$content_dir_config = <<<EOT
+// Custom content directory
+define('WP_CONTENT_DIR', '{$wp_content_abs_dir}');
+define('WP_CONTENT_URL', '{$content_url}');
+
+EOT;
+
 // Create wp-config.php file
 $config = <<<EOT
 <?php
@@ -145,6 +160,7 @@ define('WPLANG', '{$wp_language}');
 define('WP_AUTO_UPDATE_CORE', {$auto_update_value});
 
 {$site_url_config}
+{$content_dir_config}
 /** Absolute path to the WordPress directory */
 if (!defined('ABSPATH')) {
     define('ABSPATH', __DIR__ . '/');
